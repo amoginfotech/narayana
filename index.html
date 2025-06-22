@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OM Namo Narayanaya</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            <h1>OM Namo Narayanaya</h1>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Search for songs..." oninput="searchSongs()">
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="playAll()">▶️ Play All</button>
+            <button class="btn btn-secondary" onclick="stopAll()">⏹️ Stop</button>
+            <button class="btn btn-secondary" onclick="shufflePlay()">🔀 Shuffle</button>
+        </div>
+        
+        <div class="song-list" id="songList">
+            <!-- Songs will be populated here -->
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <!-- Pagination will be populated here -->
+        </div>
+    </div>
+    
+    <div class="audio-player" id="audioPlayer">
+        <div class="player-content">
+            <div class="now-playing" id="nowPlaying">No song playing</div>
+            <audio id="audioElement" controls style="flex: 1;">
+                Your browser does not support the audio element.
+            </audio>
+            <button class="btn btn-secondary" onclick="closePlayer()">✕</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
