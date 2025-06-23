@@ -24,6 +24,17 @@ const songsPerPage = 10;
 let currentAudio = null;
 let currentSongId = null;
 
+// --- Advanced Audio Player Controls ---
+let isPlaying = false;
+let seekBar = null;
+let currentTimeSpan = null;
+let totalTimeSpan = null;
+let playPauseBtn = null;
+let prevBtn = null;
+let nextBtn = null;
+let rewindBtn = null;
+let forwardBtn = null;
+
 function displaySongs() {
     const startIndex = (currentPage - 1) * songsPerPage;
     const endIndex = startIndex + songsPerPage;
@@ -152,8 +163,98 @@ document.getElementById('audioElement').addEventListener('ended', function() {
     }
 });
 
+// --- Advanced Audio Player Controls ---
+function setupAdvancedPlayer() {
+    seekBar = document.getElementById('seekBar');
+    currentTimeSpan = document.getElementById('currentTime');
+    totalTimeSpan = document.getElementById('totalTime');
+    playPauseBtn = document.getElementById('playPauseBtn');
+    prevBtn = document.getElementById('prevBtn');
+    nextBtn = document.getElementById('nextBtn');
+    rewindBtn = document.getElementById('rewindBtn');
+    forwardBtn = document.getElementById('forwardBtn');
+    const audioElement = document.getElementById('audioElement');
+
+    // Play/Pause toggle
+    playPauseBtn.onclick = function() {
+        if (audioElement.paused) {
+            audioElement.play();
+        } else {
+            audioElement.pause();
+        }
+    };
+    audioElement.onplay = function() {
+        playPauseBtn.textContent = '⏸️';
+        isPlaying = true;
+    };
+    audioElement.onpause = function() {
+        playPauseBtn.textContent = '▶️';
+        isPlaying = false;
+    };
+
+    // Seek bar
+    audioElement.addEventListener('timeupdate', function() {
+        if (audioElement.duration) {
+            seekBar.value = (audioElement.currentTime / audioElement.duration) * 100;
+            currentTimeSpan.textContent = formatTime(audioElement.currentTime);
+            totalTimeSpan.textContent = formatTime(audioElement.duration);
+        }
+    });
+    seekBar.addEventListener('input', function() {
+        if (audioElement.duration) {
+            audioElement.currentTime = (seekBar.value / 100) * audioElement.duration;
+        }
+    });
+
+    // Forward/Rewind
+    rewindBtn.onclick = function() {
+        if (!isNaN(audioElement.duration) && audioElement.duration > 0) {
+            audioElement.currentTime = Math.max(0, audioElement.currentTime - 10);
+        }
+    };
+    forwardBtn.onclick = function() {
+        if (!isNaN(audioElement.duration) && audioElement.duration > 0) {
+            audioElement.currentTime = Math.min(audioElement.duration, audioElement.currentTime + 10);
+        }
+    };
+
+    // Previous/Next
+    prevBtn.onclick = function() {
+        playPrevSong();
+    };
+    nextBtn.onclick = function() {
+        playNextSong();
+    };
+}
+
+function formatTime(sec) {
+    sec = Math.floor(sec);
+    const min = Math.floor(sec / 60);
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${min}:${s}`;
+}
+
+function playNextSong() {
+    const currentIndex = filteredSongs.findIndex(song => song.id === currentSongId);
+    if (currentIndex < filteredSongs.length - 1) {
+        const nextSong = filteredSongs[currentIndex + 1];
+        playSong(nextSong.id, nextSong.file, nextSong.title);
+    }
+}
+
+function playPrevSong() {
+    const currentIndex = filteredSongs.findIndex(song => song.id === currentSongId);
+    if (currentIndex > 0) {
+        const prevSong = filteredSongs[currentIndex - 1];
+        playSong(prevSong.id, prevSong.file, prevSong.title);
+    }
+}
+
 // Initialize the page
 displaySongs();
+
+// Call setup after DOM is ready
+window.addEventListener('DOMContentLoaded', setupAdvancedPlayer);
 
 // Make allSongs and displaySongs globally accessible
 window.allSongs = allSongs;

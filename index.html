@@ -34,10 +34,17 @@
     
     <div class="audio-player" id="audioPlayer">
         <div class="player-content">
+            <button class="btn btn-secondary" id="prevBtn" title="Previous Song">⏮️</button>
+            <button class="btn btn-secondary" id="rewindBtn" title="Rewind 10s">⏪</button>
+            <button class="btn btn-secondary" id="playPauseBtn" title="Play/Pause">▶️</button>
+            <button class="btn btn-secondary" id="forwardBtn" title="Forward 10s">⏩</button>
+            <button class="btn btn-secondary" id="nextBtn" title="Next Song">⏭️</button>
             <div class="now-playing" id="nowPlaying">No song playing</div>
-            <audio id="audioElement" controls style="flex: 1;">
+            <audio id="audioElement" controls style="flex: 1; display:none;">
                 Your browser does not support the audio element.
             </audio>
+            <input type="range" id="seekBar" value="0" min="0" max="100" step="1" style="width:150px;">
+            <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
             <button class="btn btn-secondary" onclick="closePlayer()">✕</button>
         </div>
     </div>
