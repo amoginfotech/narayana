@@ -1,17 +1,21 @@
 // Sample song data - Replace with your actual songs
 const allSongs = [
-    { id: 1, title: "GANTASALA ALL TIME HITS _ NAMO VENKATESHA _ LORD VENKATESHWARA SWAMY HITS _ LORD BALAJI SONGS", file: "songs/GANTASALA ALL TIME HITS _ NAMO VENKATESHA _ LORD VENKATESHWARA SWAMY HITS _ LORD BALAJI SONGS.mp3", duration: "3:45" },
-    { id: 2, title: "Community Namo Venkatesa Ghantasala", file: "songs/Namo Venkatesa Ghantasala.mp3", duration: "4:12" },
-    { id: 3, title: "Namo Venkatesa", file: "songs/Namo Venkatesa.mp3", duration: "3:28" },
-    { id: 4, title: "Narayana Nee Naamame", file: "songs/Narayana Nee Naamame.mp3", duration: "5:03" },
-    { id: 5, title: "Venkateswara Songs - Namo Venkatesa", file: "songs/Venkateswara Songs - Namo Venkatesa.mp3", duration: "4:35" },
-    { id: 6, title: "Change the World", file: "songs/song6.mp3", duration: "3:52" },
-    { id: 7, title: "Better Tomorrow", file: "songs/song7.mp3", duration: "4:18" },
-    { id: 8, title: "Helping Hands", file: "songs/song8.mp3", duration: "3:33" },
-    { id: 9, title: "Love and Kindness", file: "songs/song9.mp3", duration: "4:07" },
-    { id: 10, title: "Strength Together", file: "songs/song10.mp3", duration: "3:59" },
-    { id: 11, title: "New Beginnings", file: "songs/song11.mp3", duration: "4:24" },
-    { id: 12, title: "Bright Future", file: "songs/song12.mp3", duration: "3:41" }
+    { id: 1, title: "Namo Venkatesa Ghantasala collection", file: "songs/Namo Venkatesa Ghantasala collection.mp3" },
+    { id: 2, title: "Namo Venkatesa", file: "songs/Namo Venkatesa.mp3" },
+    { id: 3, title: "Narayana Nee Naamame", file: "songs/Narayana Nee Naamame.mp3" },
+    { id: 4, title: "ghantasala bhakti geetalu 1 to 20", file: "songs/ghantasala bhakti geetalu 1 to 20.mp3" },
+    { id: 5, title: "Adivo Alladivo", file: "songs/Adivo Alladivo.mp3" },
+    { id: 6, title: "Atharva Veda_health prosper", file: "songs/Atharva Veda_health prosper.mp3" },
+    { id: 7, title: "Enni Janmala Punyamo", file: "songs/Enni Janmala Punyamo.mp3" },
+    { id: 8, title: "GHANTASALA---NEE KONDAKU NEEVE--- RARE SONG", file: "songs/GHANTASALA---NEE KONDAKU NEEVE--- RARE SONG.mp3" },
+    { id: 9, title: "Govinda Namalu ttd", file: "songs/Govinda Namalu ttd.mp3" },
+    { id: 10, title: "Hare Krishna ISKCON Original Maha Mantra", file: "songs/Hare Krishna ISKCON Original Maha Mantra.mp3" },
+    { id: 11, title: "Maha Lakshmi Ashtakam", file: "songs/Maha Lakshmi Ashtakam.mp3" },
+    { id: 12, title: "Mahalakshmi Mantra 108 times", file: "songs/Mahalakshmi Mantra 108 times.mp3" },
+    { id: 13, title: "Om Namo Venkatesaya 108 Times", file: "songs/Om Namo Venkatesaya 108 Times.mp3" },
+    { id: 14, title: "Sri Mahalakshmi Astakam Telugu", file: "songs/Sri Mahalakshmi Astakam Telugu.mp3" },
+    { id: 15, title: "Vedamule Nee Nivaasamata-narasimha", file: "songs/Vedamule Nee Nivaasamata-narasimha.mp3" },
+     { id: 11, title: "Kubera Ashtalakshmi Mantra_108 Times Chanting", file: "songs/Kubera Ashtalakshmi Mantra_108 Times Chanting.mp3" }
 ];
 
 let filteredSongs = [...allSongs];
@@ -34,7 +38,7 @@ function displaySongs() {
         songItem.innerHTML = `
             <div class="song-info">
                 <div class="song-title">${song.title}</div>
-                <div class="song-duration">${song.duration}</div>
+                <div class="song-duration">${song.duration || '...'}</div>
             </div>
             <button class="play-btn" onclick="playSong(${song.id}, '${song.file}', '${song.title}')">
                 ${currentSongId === song.id ? '⏸️' : '▶️'}
@@ -150,3 +154,7 @@ document.getElementById('audioElement').addEventListener('ended', function() {
 
 // Initialize the page
 displaySongs();
+
+// Make allSongs and displaySongs globally accessible
+window.allSongs = allSongs;
+window.displaySongs = displaySongs;

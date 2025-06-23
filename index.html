@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="header-row">
-            <img src="logo.png" alt="Logo" class="logo-img">
+            <img src="images/narayana.jpg" alt="Logo" class="logo-img">
             <h1>OM Namo Narayanaya</h1>
         </div>
         
@@ -43,5 +43,23 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Dynamically load and update song durations
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.allSongs) {
+                window.allSongs.forEach(song => {
+                    if (!song.duration) {
+                        const audio = new Audio(song.file);
+                        audio.addEventListener('loadedmetadata', () => {
+                            const minutes = Math.floor(audio.duration / 60);
+                            const seconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+                            song.duration = `${minutes}:${seconds}`;
+                            if (typeof window.displaySongs === 'function') window.displaySongs();
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
