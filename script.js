@@ -9,6 +9,7 @@ let currentSongIndex = -1;
 const songList = document.getElementById('songList');
 const pagination = document.getElementById('pagination');
 const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
 const player = document.getElementById('player');
 const playerTitle = document.getElementById('playerTitle');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -28,11 +29,19 @@ async function init() {
     try {
         const response = await fetch('songs.json');
         allSongs = await response.json();
+        
+        // Add original index for default sorting
+        allSongs.forEach((s, i) => s.originalIndex = i);
+        
         filteredSongs = [...allSongs];
         
         loadState();
-        renderSongs();
         setupEventListeners();
+        
+        // Fetch ALL durations in background for sorting
+        fetchAllDurations();
+        
+        renderSongs();
     } catch (error) {
         console.error('Error loading songs:', error);
         songList.innerHTML = '<div class="loading">Error loading collection. Please try again.</div>';
@@ -41,6 +50,7 @@ async function init() {
 
 function setupEventListeners() {
     searchInput.addEventListener('input', handleSearch);
+    sortSelect.addEventListener('change', handleSort);
     playPauseBtn.addEventListener('click', togglePlay);
     prevBtn.addEventListener('click', playPrevious);
     nextBtn.addEventListener('click', playNext);
@@ -70,13 +80,36 @@ function setupEventListeners() {
     });
 }
 
+// Background Duration Loading
+async function fetchAllDurations() {
+    // Process in small batches to avoid overloading browser
+    const batchSize = 3;
+    for (let i = 0; i < allSongs.length; i += batchSize) {
+        const batch = allSongs.slice(i, i + batchSize);
+        await Promise.all(batch.map(song => {
+            if (song.duration) return Promise.resolve();
+            return fetchDuration(song);
+        }));
+        
+        // If we are currently sorting by time, re-render to update order
+        if (sortSelect.value.startsWith('time')) {
+            handleSort();
+        }
+    }
+}
+
 // Rendering
 function renderSongs() {
     const start = (currentPage - 1) * songsPerPage;
     const end = start + songsPerPage;
     const pageSongs = filteredSongs.slice(start, end);
 
-    songList.innerHTML = pageSongs.map((song, index) => `
+    if (pageSongs.length === 0) {
+        songList.innerHTML = '<div class="loading">No songs found matching your search.</div>';
+        return;
+    }
+
+    songList.innerHTML = pageSongs.map((song) => `
         <div class="song-card ${currentSongIndex !== -1 && allSongs[currentSongIndex].id === song.id ? 'active' : ''}" 
              onclick="playSongById(${song.id})">
             <div class="song-card-info">
@@ -87,37 +120,53 @@ function renderSongs() {
         </div>
     `).join('');
 
-    // Fetch durations for songs on this page if they don't have them
-    pageSongs.forEach(song => {
-        if (!song.duration) {
-            fetchDuration(song);
-        }
-    });
-
     renderPagination();
 }
 
 function fetchDuration(song) {
-    const audio = new Audio();
-    audio.src = song.file;
-    audio.preload = 'metadata';
+    return new Promise((resolve) => {
+        const audio = new Audio();
+        audio.src = song.file;
+        audio.preload = 'metadata';
+        
+        audio.addEventListener('loadedmetadata', () => {
+            song.durationSec = audio.duration;
+            song.duration = formatTime(audio.duration);
+            const durationEl = document.getElementById(`duration-${song.id}`);
+            if (durationEl) {
+                durationEl.textContent = song.duration;
+            }
+            resolve();
+        });
+
+        audio.addEventListener('error', () => {
+            song.durationSec = 0;
+            song.duration = 'Error';
+            resolve();
+        });
+        
+        // Timeout for safety
+        setTimeout(resolve, 5000);
+    });
+}
+
+function handleSort() {
+    const type = sortSelect.value;
     
-    audio.addEventListener('loadedmetadata', () => {
-        const duration = formatTime(audio.duration);
-        song.duration = duration;
-        const durationEl = document.getElementById(`duration-${song.id}`);
-        if (durationEl) {
-            durationEl.textContent = duration;
+    filteredSongs.sort((a, b) => {
+        if (type === 'time-asc') {
+            return (a.durationSec || 0) - (b.durationSec || 0);
+        } else if (type === 'time-desc') {
+            return (b.durationSec || 0) - (a.durationSec || 0);
+        } else if (type === 'alpha') {
+            return a.title.localeCompare(b.title);
+        } else {
+            return a.originalIndex - b.originalIndex;
         }
-        // Save to temporary memory to avoid re-fetching while browsing
     });
 
-    audio.addEventListener('error', () => {
-        const durationEl = document.getElementById(`duration-${song.id}`);
-        if (durationEl) {
-            durationEl.textContent = 'Error';
-        }
-    });
+    renderSongs();
+    saveState();
 }
 
 function renderPagination() {
@@ -241,6 +290,7 @@ function closePlayer() {
 function saveState() {
     const state = {
         volume: volumeBar.value,
+        sort: sortSelect.value,
         lastSongId: currentSongIndex !== -1 ? allSongs[currentSongIndex].id : null
     };
     localStorage.setItem('narayana_player_state', JSON.stringify(state));
@@ -252,6 +302,10 @@ function loadState() {
         const state = JSON.parse(saved);
         volumeBar.value = state.volume || 80;
         audioElement.volume = volumeBar.value / 100;
+        
+        if (state.sort) {
+            sortSelect.value = state.sort;
+        }
         
         // Don't auto-play, but prepare the player if there was a last song
         if (state.lastSongId) {

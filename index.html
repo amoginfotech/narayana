@@ -16,9 +16,19 @@
                 <img src="images/narayana.jpg" alt="Logo" class="logo">
                 <h1>OM Namo Narayanaya</h1>
             </div>
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search your song bank..." autocomplete="off">
-                <span class="search-icon">🔍</span>
+            <div class="header-controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search your song bank..." autocomplete="off">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="sort-container">
+                    <select id="sortSelect">
+                        <option value="default">Default Order</option>
+                        <option value="time-asc">Time (Shortest First)</option>
+                        <option value="time-desc">Time (Longest First)</option>
+                        <option value="alpha">Alphabetical</option>
+                    </select>
+                </div>
             </div>
         </header>
 
